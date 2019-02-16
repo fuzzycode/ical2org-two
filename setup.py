@@ -19,3 +19,31 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+from setuptools import setup
+
+setup(
+    name="ical2org-two",
+    url="https://github.com/fuzzycode/ical2org-two",
+    project_urls={
+        "Documentation": "",
+        "Code": "https://github.com/fuzzycode/ical2org-two",
+        "Issue tracker": "https://github.com/fuzzycode/ical2org-two/issues",
+    },
+    license="MIT",
+    author="Björn Larsson",
+    author_email="develop@bjornlarsson.net",
+    maintainer="Björn Larsson",
+    maintainer_email="develop@bjornlarsson.net",
+    description="",
+    python_requires=">=3.3",
+    classifiers=[
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+    ]
+)
