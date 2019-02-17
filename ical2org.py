@@ -39,15 +39,36 @@ class Event(object):
     """
 
     """
+    __event_template__ = Template("* ${summary}\n${time}\n\t:PROPERTIES:\n${properties}\n\t:END:\n\t${description}\n")
+    __property_template = Template("\t${name}: ${value}")
 
     def __init__(self, **kwargs):
-        pass
+        self._data = kwargs
 
-    def __str__(self):
+    def _get_properties(self):
+        props = [ self.__property_template.substitute({'name': "LOCATION",
+                                                       "value": self._data['LOCATION']})
+
+        ]
+        return "\n".join(props)
+
+    def _get_time(self):
         return ""
 
+    def __str__(self):
+        data = dict(properties=self._get_properties(),
+                    time=self._get_time(),
+                    summary=self._data['SUMMARY'],
+                    description=self._data['DESCRIPTION'].replace('\n', '\n\t'))
+        return self.__event_template__.substitute(data)
+
     def __lt__(self, other):
-        return True
+        if self.UID == other.UID:
+            return hasattr(self, 'RRULE')
+        return self.UID < other.UID
+
+    def __getattr__(self, item):
+        return self._data[item]
 
 
 class Calendar(object):
@@ -75,6 +96,9 @@ class Calendar(object):
 
     def __str__(self):
         return self.__file_template__.substitute(dict(header=self._get_header(), body=self._get_events()))
+
+    def __repr__(self):
+        return "Calendar ({} Events)".format(len(self._events))
 
 
 def main(args):
