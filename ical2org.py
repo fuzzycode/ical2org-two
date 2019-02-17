@@ -44,10 +44,25 @@ def _localized_time(dt):
         return dt
 
 
+def _org_time(start, end):
+    """"""
+    start = _localized_time(start)
+    end = _localized_time(end)
+    return "{}--{} ".format(start.strftime("%H:%M"), end.strftime("%H:%M"))  # Note the extra padding
+
+
 def _org_timestamp(dt):
     """Returns a org-mode passive timestamp"""
     t = _localized_time(dt)
     return "[{}]".format(t.strftime("%Y-%m-%d %a %H:%M"))
+
+
+def _org_range(start, end):
+    """"""
+    start = _localized_time(start)
+    end = _localized_time(end)
+    return "(diary-block {start} {end})".format(start=start.strftime("%m %d %Y"),
+                                                end=end.strftime("%m %d %Y"))
 
 
 class Event(object):
@@ -60,18 +75,36 @@ class Event(object):
     def __init__(self, **kwargs):
         self._data = kwargs
 
+    def is_recurring(self):
+        return hasattr(self, 'RRULE')
+
+    def is_all_day(self):
+        return type(self._data['DTSTART'].dt) is date
+
     def _get_properties(self):
-        props = [ self.__property_template.substitute({'name': "LOCATION",
-                                                       "value": self._data['LOCATION']}),
-                  self.__property_template.substitute({'name': "ID", "value": self._data['UID']}),
-                  self.__property_template.substitute({'name': 'CREATED',
-                                                       'value': _org_timestamp(self._data['CREATED'].dt)}),
-                  self.__property_template.substitute({'name': "LAST-MODIFIED",
-                                                       'value': _org_timestamp(self._data['LAST-MODIFIED'].dt)})]
+        props = [self.__property_template.substitute({'name': "LOCATION",
+                                                      "value": self._data['LOCATION']}),
+                 self.__property_template.substitute({'name': "ID",
+                                                      "value": self._data['UID']}),
+                 self.__property_template.substitute({'name': 'CREATED',
+                                                      'value': _org_timestamp(self._data['CREATED'].dt)}),
+                 self.__property_template.substitute({'name': "LAST-MODIFIED",
+                                                      'value': _org_timestamp(self._data['LAST-MODIFIED'].dt)})]
         return "\n".join(props)
 
+    def _get_recurring_time(self):
+        pass
+
+    def _get_instance_time(self):
+        time = "" if self.is_all_day() else _org_time(self.DTSTART.dt, self.DTEND.dt)
+        return "%%(and {range}) {time}{summary}".format(summary=self.SUMMARY,
+                                                        time=time,
+                                                        range=_org_range(self.DTSTART.dt, self.DTEND.dt))
+
     def _get_time(self):
-        return ""
+        if self.is_recurring():
+            return self._get_recurring_time()
+        return self._get_instance_time()
 
     def __str__(self):
         data = dict(properties=self._get_properties(),
@@ -86,7 +119,10 @@ class Event(object):
         return self.UID < other.UID
 
     def __getattr__(self, item):
-        return self._data[item]
+        try:
+            return self._data[item]
+        except KeyError:
+            raise AttributeError("No such attribute: {}".format(item))
 
 
 class Calendar(object):
