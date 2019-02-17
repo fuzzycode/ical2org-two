@@ -27,12 +27,27 @@
 import sys
 import argparse
 from string import Template
+from dateutil import tz
 from icalendar import Calendar as iCal
 from datetime import datetime, date, timedelta
 from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
 __config__ = None
+
+
+def _localized_time(dt):
+    """Convert a datetime object to local time"""
+    if isinstance(dt, datetime):
+        return dt.astimezone(tz.tzlocal())
+    else:
+        return dt
+
+
+def _org_timestamp(dt):
+    """Returns a org-mode passive timestamp"""
+    t = _localized_time(dt)
+    return "[{}]".format(t.strftime("%Y-%m-%d %a %H:%M"))
 
 
 class Event(object):
@@ -47,9 +62,12 @@ class Event(object):
 
     def _get_properties(self):
         props = [ self.__property_template.substitute({'name': "LOCATION",
-                                                       "value": self._data['LOCATION']})
-
-        ]
+                                                       "value": self._data['LOCATION']}),
+                  self.__property_template.substitute({'name': "ID", "value": self._data['UID']}),
+                  self.__property_template.substitute({'name': 'CREATED',
+                                                       'value': _org_timestamp(self._data['CREATED'].dt)}),
+                  self.__property_template.substitute({'name': "LAST-MODIFIED",
+                                                       'value': _org_timestamp(self._data['LAST-MODIFIED'].dt)})]
         return "\n".join(props)
 
     def _get_time(self):
@@ -76,7 +94,7 @@ class Calendar(object):
 
     """
     __file_template__ = Template("${header}${body}")
-    __header_template__ = Template("# -*- buffer-read-only: t -*-\n${properties}\n")
+    __header_template__ = Template("# -*- buffer-read-only: t -*-\n${properties}\n\n")
     __header_property_template = Template("#+${name}: ${value}")
 
     def __init__(self, stream):
@@ -84,7 +102,7 @@ class Calendar(object):
         self._events = sorted([Event(**e) for e in self._cal.walk("VEVENT")])
 
     def _get_header(self):
-        created = "[{}]".format(datetime.now().strftime("%Y-%m-%d %a %H:%M"))
+        created = _org_timestamp(datetime.now())
         props = [self.__header_property_template.substitute(dict(name='PRODID', value=self._cal['PRODID'])),
                  self.__header_property_template.substitute(dict(name="VERSION", value=self._cal['VERSION'])),
                  self.__header_property_template.substitute(dict(name="CREATED", value=created))]
