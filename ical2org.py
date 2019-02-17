@@ -19,3 +19,25 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+"""
+
+"""
+
+import sys
+import argparse
+
+__description__ = "Converts icalander .ics files to org-agenda format"
+__config__ = None
+
+
+def main(args):
+    parser = argparse.ArgumentParser(description=__description__)
+    parser.add_argument('--input', type=argparse.FileType(mode='r', encoding='utf8'), default=sys.stdin)
+    parser.add_argument('--output', type=argparse.FileType(mode='w', encoding='utf8'), default=sys.stdout)
+    global __config__
+    __config__ = vars(parser.parse_args(args[1:]))
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
