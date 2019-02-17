@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 from setuptools import setup
-from .version import version
+from version import version
 
 setup(
     name="ical2org-two",

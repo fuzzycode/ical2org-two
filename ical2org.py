@@ -27,7 +27,7 @@
 import sys
 import argparse
 from icalendar import Calendar as iCal
-from .version import version
+from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
 __config__ = None
