@@ -28,6 +28,7 @@ import sys
 import argparse
 from string import Template
 from icalendar import Calendar as iCal
+from datetime import datetime, date, timedelta
 from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
@@ -38,11 +39,12 @@ class Event(object):
     """
 
     """
+
     def __init__(self, **kwargs):
         pass
 
     def __str__(self):
-        pass
+        return ""
 
     def __lt__(self, other):
         return True
@@ -53,17 +55,23 @@ class Calendar(object):
 
     """
     __file_template__ = Template("${header}${body}")
-    __header_template__ = Template("")
+    __header_template__ = Template("# -*- buffer-read-only: t -*-\n${properties}\n")
+    __header_property_template = Template("#+${name}: ${value}")
 
     def __init__(self, stream):
         self._cal = iCal.from_ical(stream.read())
         self._events = sorted([Event(**e) for e in self._cal.walk("VEVENT")])
 
     def _get_header(self):
-        return ""
+        created = "[{}]".format(datetime.now().strftime("%Y-%m-%d %a %H:%M"))
+        props = [self.__header_property_template.substitute(dict(name='PRODID', value=self._cal['PRODID'])),
+                 self.__header_property_template.substitute(dict(name="VERSION", value=self._cal['VERSION'])),
+                 self.__header_property_template.substitute(dict(name="CREATED", value=created))]
+
+        return self.__header_template__.substitute(dict(properties="\n".join(props)))
 
     def _get_events(self):
-        return ""
+        return "\n".join([str(e) for e in self._events])
 
     def __str__(self):
         return self.__file_template__.substitute(dict(header=self._get_header(), body=self._get_events()))
