@@ -26,11 +26,47 @@
 
 import sys
 import argparse
+from string import Template
 from icalendar import Calendar as iCal
 from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
 __config__ = None
+
+
+class Event(object):
+    """
+
+    """
+    def __init__(self, **kwargs):
+        pass
+
+    def __str__(self):
+        pass
+
+    def __lt__(self, other):
+        return True
+
+
+class Calendar(object):
+    """
+
+    """
+    __file_template__ = Template("${header}${body}")
+    __header_template__ = Template("")
+
+    def __init__(self, stream):
+        self._cal = iCal.from_ical(stream.read())
+        self._events = sorted([Event(**e) for e in self._cal.walk("VEVENT")])
+
+    def _get_header(self):
+        return ""
+
+    def _get_events(self):
+        return ""
+
+    def __str__(self):
+        return self.__file_template__.substitute(dict(header=self._get_header(), body=self._get_events()))
 
 
 def main(args):
@@ -40,6 +76,8 @@ def main(args):
     parser.add_argument('--output', type=argparse.FileType(mode='w', encoding='utf8'), default=sys.stdout)
     global __config__
     __config__ = vars(parser.parse_args(args[1:]))
+
+    __config__['output'].write(str(Calendar(__config__['input'])))
 
 
 if __name__ == "__main__":
