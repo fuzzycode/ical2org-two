@@ -26,6 +26,8 @@
 
 import sys
 import argparse
+from icalendar import Calendar as iCal
+from .version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
 __config__ = None
@@ -33,6 +35,7 @@ __config__ = None
 
 def main(args):
     parser = argparse.ArgumentParser(description=__description__)
+    parser.add_argument('--version', action='version', version='%(prog)s {}'.format(version()))
     parser.add_argument('--input', type=argparse.FileType(mode='r', encoding='utf8'), default=sys.stdin)
     parser.add_argument('--output', type=argparse.FileType(mode='w', encoding='utf8'), default=sys.stdout)
     global __config__

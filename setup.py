@@ -21,9 +21,11 @@
 # SOFTWARE.
 
 from setuptools import setup
+from .version import version
 
 setup(
     name="ical2org-two",
+    version=version(),
     url="https://github.com/fuzzycode/ical2org-two",
     project_urls={
         "Documentation": "",
