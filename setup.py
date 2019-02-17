@@ -36,7 +36,7 @@ setup(
     maintainer="Björn Larsson",
     maintainer_email="develop@bjornlarsson.net",
     description="",
-    python_requires=">=3.3",
+    python_requires=">3.3",
     classifiers=[
         "Operating System :: OS Independent",
         "Programming Language :: Python",
