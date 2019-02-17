@@ -99,7 +99,8 @@ class Event(object):
         time = "" if self.is_all_day() else _org_time(self.DTSTART.dt, self.DTEND.dt)
         return "%%(and {range}) {time}{summary}".format(summary=self.SUMMARY,
                                                         time=time,
-                                                        range=_org_range(self.DTSTART.dt, self.DTEND.dt))
+                                                        range=_org_range(self.DTSTART.dt,
+                                                                         self.DTEND.dt - timedelta(days=1)))
 
     def _get_time(self):
         if self.is_recurring():
