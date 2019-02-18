@@ -65,12 +65,61 @@ def _org_range(start, end):
                                                 end=end.strftime("%m %d %Y"))
 
 
+def _org_days(rule):
+    return ""
+
+
+def _org_months(rule):
+    return ""
+
+
+def _org_interval(rule, start):
+    # No interval
+    if not rule.get('INTERVAL', None):
+        return ""
+
+    interval = rule['INTERVAL'][0]
+    frequency = rule['FREQ'][0]
+    start = _localized_time(start)
+
+    if frequency == 'DAILY':
+        return "(diary-cyclic {interval} {month} {day} {year})".format(interval=interval,
+                                                                       month=start.month,
+                                                                       day=start.day,
+                                                                       year=start.year)
+    elif frequency == 'WEEKLY':
+        return "(eq 0 (% (/ (- (calendar-absolute-from-gregorian date) \
+(calendar-absolute-from-gregorian '({month} {day} {year}))) 7) {interval}))".format(interval=interval,
+                                                                                            month=start.month,
+                                                                                            day=start.day,
+                                                                                            year=start.year)
+    elif frequency == 'MONTHLY':
+        return "(eq 0 (% (+ (* (- (nth 2 date) {year}) 12) \
+(- (nth 0 date) {month})) {interval}))".format(interval=interval,
+                                                       month=start.month,
+                                                       day=start.day,
+                                                       year=start.year)
+    elif frequency == 'YEARLY':
+        return "(eq 0 (% (- (nth 2 date) {year}) {interval}))".format(interval=interval,
+                                                                      month=start.month,
+                                                                      day=start.day,
+                                                                      year=start.year)
+    else:
+        return ""
+
+
+def _yearly_date(dt):
+    return "(diary-date {month} {day} t)".format(month=dt.month, day=dt.day)
+
+
 class Event(object):
     """
 
     """
     __event_template__ = Template("* ${summary}\n${time}\n\t:PROPERTIES:\n${properties}\n\t:END:\n\t${description}\n")
     __property_template = Template("\t${name}: ${value}")
+    __recurring_template = Template(
+        "%%(and ${date} ${byday} {range} ${interval} ${bymonth} {exception}) ${time}${summary}")
 
     def __init__(self, **kwargs):
         self._data = kwargs
@@ -93,14 +142,21 @@ class Event(object):
         return "\n".join(props)
 
     def _get_recurring_time(self):
-        pass
+        frequency = self.RRULE['FREQ'][0]
+        _date = _yearly_date(self.DTSTART.dt) if frequency == 'YEARLY' else ""
+        return self.__recurring_template.substitute(date=_date,
+                                                    summary=self.SUMMARY,
+                                                    byday=_org_days(self.RRULE),
+                                                    bymonth=_org_months(self.RRULE),
+                                                    interval=_org_interval(self.RRULE, self.DTSTART.dt),
+                                                    time=_org_time(self.DTSTART.dt, self.DTEND.dt))
 
     def _get_instance_time(self):
         time = "" if self.is_all_day() else _org_time(self.DTSTART.dt, self.DTEND.dt)
+        end = self.DTEND.dt - timedelta(days=1) if self.is_all_day() else self.DTEND.dt
         return "%%(and {range}) {time}{summary}".format(summary=self.SUMMARY,
                                                         time=time,
-                                                        range=_org_range(self.DTSTART.dt,
-                                                                         self.DTEND.dt - timedelta(days=1)))
+                                                        range=_org_range(self.DTSTART.dt, end))
 
     def _get_time(self):
         if self.is_recurring():
