@@ -26,6 +26,7 @@
 
 import sys
 import argparse
+import re
 from string import Template
 from dateutil import tz
 from icalendar import Calendar as iCal
@@ -66,7 +67,28 @@ def _org_range(start, end):
 
 
 def _org_days(rule):
-    return ""
+    if not ('BYDAY' in rule or 'BYMONTHDAY' in rule):
+        return ""
+
+    if 'BYMONTHDAY' in rule:
+        return "(diary-date t '({days}) t)".format(
+            days=' '.join(["{}".format(day) for day in rule['BYMONTHDAY']]))
+    else:
+        day_names = list()
+        relative_days = list()
+        lookup = {"SU": 0, "MO": 1, "TU": 2, "WE": 3, "TH": 4, "FR": 5, "SA": 6}
+
+        for day in rule['BYDAY']:
+            match = re.match(r"(?P<number>\d)(?P<day>[FMSTW][AEHROU])", day)
+
+            if match:
+                relative_days.append("(diary-float t {day} {number})".format(day=lookup[match.group('day')],
+                                                                             number=match.group('number')))
+            else:
+                day_names.append(str(lookup[day]))
+
+        days = "(memq (calendar-day-of-week date) '({}))".format(' '.join(day_names)) if len(day_names) > 0 else ""
+        return "{} {}".format(' '.join(relative_days), days)
 
 
 def _org_months(rule):
