@@ -87,7 +87,8 @@ def _org_interval(rule, start):
     start = _localized_time(start)
 
     if frequency == 'DAILY':
-        return "(diary-cyclic {interval} {month} {day} {year})".format(interval=interval,
+        return "(eq 0 (% (- (calendar-absolute-from-gregorian date) \
+(calendar-absolute-from-gregorian '({month} {day} {year}))) {interval}))".format(interval=interval,
                                                                        month=start.month,
                                                                        day=start.day,
                                                                        year=start.year)
