@@ -31,6 +31,7 @@ from string import Template
 from dateutil import tz
 from icalendar import Calendar as iCal
 from datetime import datetime, date, timedelta
+from dateutil.relativedelta import relativedelta
 from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
@@ -64,6 +65,32 @@ def _org_range(start, end):
     end = _localized_time(end)
     return "(diary-block {start} {end})".format(start=start.strftime("%m %d %Y"),
                                                 end=end.strftime("%m %d %Y"))
+
+
+def _org_recurrence_range(rule, start):
+    if 'UNTIL' in rule:
+        end = _localized_time(rule['UNTIL'][0])
+        return _org_range(start, end)
+
+    elif 'COUNT' in rule:
+        interval = rule.get('INTERVAL', [1])[0]
+        count = rule.get('COUNT', [1])[0]
+        frequency = rule['FREQ'][0]
+
+        if frequency == 'YEARLY':
+            delta = relativedelta(years=(count * interval))
+        elif frequency == 'MONTHLY':
+            delta = relativedelta(months=count * interval)
+        elif frequency == 'WEEKLY':
+            delta = relativedelta(weeks=(count * interval) / len(rule['BYDAY']))
+        elif frequency == 'DAILY':
+            delta = relativedelta(days=(count * interval))
+        else:
+            delta = timedelta()
+
+        return _org_range(start, start + delta)
+    else:
+        return ""
 
 
 def _org_days(rule):
