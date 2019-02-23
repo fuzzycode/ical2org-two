@@ -170,8 +170,8 @@ class Event(object):
     """
 
     """
-    __event_template__ = Template("* ${summary}\n${time}\n\t:PROPERTIES:\n${properties}\n\t:END:\n\t${description}\n")
-    __property_template = Template("\t${name}: ${value}")
+    __event_template__ = Template("* ${summary}\n${time}\n\t:PROPERTIES:\n${properties}\n\t:END:\n${description}\n")
+    __property_template = Template("\t:${name}: ${value}")
     __recurring_template = Template(
         "%%(and ${date} ${byday} {range} ${interval} ${bymonth} {exception}) ${time}${summary}")
 
