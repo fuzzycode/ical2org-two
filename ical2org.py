@@ -70,7 +70,11 @@ def _org_days(rule):
 
 
 def _org_months(rule):
-    return ""
+    if 'BYMONTH' not in rule:
+        return ""
+
+    months = ' '.join(rule['BYMONTH'])
+    return "(memq (nth 0 date) '({months}))".format(months=months)
 
 
 def _org_interval(rule, start):
@@ -148,6 +152,7 @@ class Event(object):
                                                     summary=self.SUMMARY,
                                                     byday=_org_days(self.RRULE),
                                                     bymonth=_org_months(self.RRULE),
+                                                    range=_org_recurrence_range(self.RRULE, self.DTSTART.dt),
                                                     interval=_org_interval(self.RRULE, self.DTSTART.dt),
                                                     time=_org_time(self.DTSTART.dt, self.DTEND.dt))
 
