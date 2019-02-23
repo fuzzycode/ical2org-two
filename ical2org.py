@@ -218,11 +218,19 @@ class Event(object):
             return self._get_recurring_time()
         return self._get_instance_time()
 
+    def _get_description(self):
+        desc = self._data.get('DESCRIPTION', None)
+
+        if desc:
+            return "** Description:\n\t{}".format(desc.replace('\n', '\n\t'))
+        else:
+            return ""
+
     def __str__(self):
         data = dict(properties=self._get_properties(),
                     time=self._get_time(),
                     summary=self._data['SUMMARY'],
-                    description=self._data['DESCRIPTION'].replace('\n', '\n\t'))
+                    description=self._get_description())
         return self.__event_template__.substitute(data)
 
     def __lt__(self, other):
