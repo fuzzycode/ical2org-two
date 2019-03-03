@@ -143,9 +143,9 @@ def _org_interval(rule, start):
     if frequency == 'DAILY':
         return "(eq 0 (% (- (calendar-absolute-from-gregorian date) \
 (calendar-absolute-from-gregorian '({month} {day} {year}))) {interval}))".format(interval=interval,
-                                                                       month=start.month,
-                                                                       day=start.day,
-                                                                       year=start.year)
+                                                                                 month=start.month,
+                                                                                 day=start.day,
+                                                                                 year=start.year)
     elif frequency == 'WEEKLY':
         return "(eq 0 (% (/ (- (calendar-absolute-from-gregorian date) \
 (calendar-absolute-from-gregorian '({month} {day} {year}))) 7) {interval}))".format(interval=interval,
@@ -168,10 +168,12 @@ def _org_exceptions(exceptions):
     if not exceptions:
         return ""
 
-    exceptions = list(exceptions) if not isinstance(exceptions, list) else exceptions
     result = list()
-    for e in exceptions:
-        result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in e.dts])
+    if isinstance(exceptions, list):
+        for e in exceptions:
+            result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in e.dts])
+    else:
+        result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in exceptions.dts])
 
     return " ".join(result)
 
