@@ -201,14 +201,19 @@ class Event(object):
         return type(self._data['DTSTART'].dt) is date
 
     def _get_properties(self):
-        props = [self.__property_template.substitute({'name': "LOCATION",
-                                                      "value": self._data['LOCATION']}),
-                 self.__property_template.substitute({'name': "ID",
-                                                      "value": self._data['UID']}),
-                 self.__property_template.substitute({'name': 'CREATED',
-                                                      'value': _org_timestamp(self._data['CREATED'].dt)}),
-                 self.__property_template.substitute({'name': "LAST-MODIFIED",
-                                                      'value': _org_timestamp(self._data['LAST-MODIFIED'].dt)})]
+        props = [self.__property_template.substitute({'name': "ID",
+                                                      "value": self._data['UID']})]
+        if 'LOCATION' in self._data:
+            props.append(self.__property_template.substitute({'name': "LOCATION",
+                                                              "value": self._data['LOCATION']}))
+
+        if 'CREATED' in self._data:
+            props.append(self.__property_template.substitute({'name': 'CREATED',
+                                                              'value': _org_timestamp(self._data['CREATED'].dt)}))
+        if 'LAST-MODIFIED' in self._data:
+            props.append(self.__property_template.substitute({'name': "LAST-MODIFIED",
+                                                              'value': _org_timestamp(self._data['LAST-MODIFIED'].dt)}))
+
         return "\n".join(props)
 
     def _get_recurring_time(self):
