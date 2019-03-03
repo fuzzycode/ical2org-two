@@ -35,7 +35,6 @@ from dateutil.relativedelta import relativedelta
 from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
-__config__ = None
 
 
 def _localized_time(dt):
@@ -65,6 +64,13 @@ def _org_range(start, end):
     end = _localized_time(end)
     return "(diary-block {start} {end})".format(start=start.strftime("%m %d %Y"),
                                                 end=end.strftime("%m %d %Y"))
+
+
+def _org_date(_date):
+    """"""
+    return "(diary-date {month} {day} {year})".format(month=_date.month,
+                                                      day=_date.day,
+                                                      year=_date.year)
 
 
 def _org_recurrence_range(rule, start):
@@ -127,8 +133,7 @@ def _org_months(rule):
 
 
 def _org_interval(rule, start):
-    # No interval
-    if not rule.get('INTERVAL', None):
+    if 'INTERVAL' not in rule:
         return ""
 
     interval = rule['INTERVAL'][0]
@@ -144,15 +149,12 @@ def _org_interval(rule, start):
     elif frequency == 'WEEKLY':
         return "(eq 0 (% (/ (- (calendar-absolute-from-gregorian date) \
 (calendar-absolute-from-gregorian '({month} {day} {year}))) 7) {interval}))".format(interval=interval,
-                                                                                            month=start.month,
-                                                                                            day=start.day,
-                                                                                            year=start.year)
+                                                                                    month=start.month,
+                                                                                    day=start.day,
+                                                                                    year=start.year)
     elif frequency == 'MONTHLY':
         return "(eq 0 (% (+ (* (- (nth 2 date) {year}) 12) \
-(- (nth 0 date) {month})) {interval}))".format(interval=interval,
-                                                       month=start.month,
-                                                       day=start.day,
-                                                       year=start.year)
+(- (nth 0 date) {month})) {interval}))".format(interval=interval, month=start.month, day=start.day, year=start.year)
     elif frequency == 'YEARLY':
         return "(eq 0 (% (- (nth 2 date) {year}) {interval}))".format(interval=interval,
                                                                       month=start.month,
@@ -160,6 +162,18 @@ def _org_interval(rule, start):
                                                                       year=start.year)
     else:
         return ""
+
+
+def _org_exceptions(exceptions):
+    if not exceptions:
+        return ""
+
+    exceptions = list(exceptions) if not isinstance(exceptions, list) else exceptions
+    result = list()
+    for e in exceptions:
+        result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in e.dts])
+
+    return " ".join(result)
 
 
 def _yearly_date(dt):
@@ -173,7 +187,7 @@ class Event(object):
     __event_template__ = Template("* ${summary}\n${time}\n\t:PROPERTIES:\n${properties}\n\t:END:\n${description}\n")
     __property_template = Template("\t:${name}: ${value}")
     __recurring_template = Template(
-        "%%(and ${date} ${byday} {range} ${interval} ${bymonth} {exception}) ${time}${summary}")
+        "%%(and ${date} ${byday} ${range} ${interval} ${bymonth} ${exception}) ${time}${summary}")
 
     def __init__(self, **kwargs):
         self._data = kwargs
@@ -198,10 +212,12 @@ class Event(object):
     def _get_recurring_time(self):
         frequency = self.RRULE['FREQ'][0]
         _date = _yearly_date(self.DTSTART.dt) if frequency == 'YEARLY' else ""
+        _exceptions = getattr(self, 'EXDATE', None)
         return self.__recurring_template.substitute(date=_date,
                                                     summary=self.SUMMARY,
                                                     byday=_org_days(self.RRULE),
                                                     bymonth=_org_months(self.RRULE),
+                                                    exception=_org_exceptions(_exceptions),
                                                     range=_org_recurrence_range(self.RRULE, self.DTSTART.dt),
                                                     interval=_org_interval(self.RRULE, self.DTSTART.dt),
                                                     time=_org_time(self.DTSTART.dt, self.DTEND.dt))
@@ -251,7 +267,7 @@ class Calendar(object):
     """
     __file_template__ = Template("${header}${body}")
     __header_template__ = Template("# -*- buffer-read-only: t -*-\n${properties}\n\n")
-    __header_property_template = Template("#+${name}: ${value}")
+    __header_property_template = Template("#+PROPERTY: ${name} ${value}")
 
     def __init__(self, stream):
         self._cal = iCal.from_ical(stream.read())
@@ -280,10 +296,10 @@ def main(args):
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(version()))
     parser.add_argument('--input', type=argparse.FileType(mode='r', encoding='utf8'), default=sys.stdin)
     parser.add_argument('--output', type=argparse.FileType(mode='w', encoding='utf8'), default=sys.stdout)
-    global __config__
-    __config__ = vars(parser.parse_args(args[1:]))
 
-    __config__['output'].write(str(Calendar(__config__['input'])))
+    settings = vars(parser.parse_args(args[1:]))
+
+    settings['output'].write(str(Calendar(settings['input'])))
 
 
 if __name__ == "__main__":
