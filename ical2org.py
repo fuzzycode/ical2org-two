@@ -27,8 +27,10 @@
 import sys
 import argparse
 import re
+from operator import attrgetter
 from string import Template
 from dateutil import tz
+from itertools import groupby
 from icalendar import Calendar as iCal
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
@@ -164,16 +166,20 @@ def _org_interval(rule, start):
         return ""
 
 
-def _org_exceptions(exceptions):
-    if not exceptions:
-        return ""
-
+def _org_exceptions(exceptions, extra):
     result = list()
-    if isinstance(exceptions, list):
-        for e in exceptions:
-            result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in e.dts])
-    else:
-        result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in exceptions.dts])
+
+    if exceptions:
+        if isinstance(exceptions, list):
+            for e in exceptions:
+                result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in e.dts])
+        else:
+            result.extend(["(not {date})".format(date=_org_date(d.dt)) for d in exceptions.dts])
+
+    if extra:
+        if not isinstance(extra, (list, tuple)):
+            extra = tuple(extra)
+        result.extend([_org_date(getattr(e, 'RECURRENCE-ID', None).dt) for e in extra])
 
     return " ".join(result)
 
@@ -216,7 +222,7 @@ class Event(object):
 
         return "\n".join(props)
 
-    def _get_recurring_time(self):
+    def _get_recurring_time(self, exceptions):
         frequency = self.RRULE['FREQ'][0]
         _date = _yearly_date(self.DTSTART.dt) if frequency == 'YEARLY' else ""
         _exceptions = getattr(self, 'EXDATE', None)
@@ -224,7 +230,7 @@ class Event(object):
                                                     summary=self.SUMMARY,
                                                     byday=_org_days(self.RRULE),
                                                     bymonth=_org_months(self.RRULE),
-                                                    exception=_org_exceptions(_exceptions),
+                                                    exception=_org_exceptions(_exceptions, exceptions),
                                                     range=_org_recurrence_range(self.RRULE, self.DTSTART.dt),
                                                     interval=_org_interval(self.RRULE, self.DTSTART.dt),
                                                     time=_org_time(self.DTSTART.dt, self.DTEND.dt))
@@ -236,9 +242,9 @@ class Event(object):
                                                         time=time,
                                                         range=_org_range(self.DTSTART.dt, end))
 
-    def _get_time(self):
+    def _get_time(self, exceptions):
         if self.is_recurring():
-            return self._get_recurring_time()
+            return self._get_recurring_time(exceptions)
         return self._get_instance_time()
 
     def _get_description(self):
@@ -250,8 +256,11 @@ class Event(object):
             return ""
 
     def __str__(self):
+        return "Event"
+
+    def to_org(self, exceptions):
         data = dict(properties=self._get_properties(),
-                    time=self._get_time(),
+                    time=self._get_time(exceptions),
                     summary=self._data['SUMMARY'],
                     description=self._get_description())
         return self.__event_template__.substitute(data)
@@ -289,7 +298,14 @@ class Calendar(object):
         return self.__header_template__.substitute(dict(properties="\n".join(props)))
 
     def _get_events(self):
-        return "\n".join([str(e) for e in self._events])
+        _events = list()
+        for key, group in groupby(self._events, attrgetter('UID')):
+            groups = list(group)
+            exceptions = [exception for exception in groups if hasattr(exception, 'RECURRENCE-ID')]
+            for event in groups:
+                _events.append(event.to_org(exceptions))
+
+        return "\n".join(_events)
 
     def __str__(self):
         return self.__file_template__.substitute(dict(header=self._get_header(), body=self._get_events()))
