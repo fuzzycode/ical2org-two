@@ -38,6 +38,12 @@ setup(
     maintainer="Björn Larsson",
     maintainer_email="develop@bjornlarsson.net",
     description="",
+    py_modules=['ical2org', 'version'],
+    entry_points={
+        'console_scripts': [
+            'ical2org2 = ical2org:main',
+        ],
+    },
     python_requires=">3.3",
     classifiers=[
         "Operating System :: OS Independent",
