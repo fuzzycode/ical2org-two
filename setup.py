@@ -38,6 +38,7 @@ setup(
     maintainer="Björn Larsson",
     maintainer_email="develop@bjornlarsson.net",
     description="",
+    long_description="",
     py_modules=['ical2org', 'version'],
     entry_points={
         'console_scripts': [
@@ -45,6 +46,7 @@ setup(
         ],
     },
     python_requires=">3.3",
+    test_suite='tests',
     classifiers=[
         "Operating System :: OS Independent",
         "Programming Language :: Python",
