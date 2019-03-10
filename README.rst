@@ -5,8 +5,16 @@ Converts ical data into Emacs org-mode entries, suitable for usage in agenda mod
 Install
 =======
 
+Usage
+=====
+
 Design Goals
 ============
+All events from iCalendar are mapped to org Sexp diary entries. This provides a 1-1 mapping between iCalendar
+entries and entries in org mode. It also assures that infinite recurring events can be supported without
+risk of bloating resulting file size. It also allows for creating more complex recurrence rules, matching more
+closely the once in iCalendar.
+
 ical2org-two does not support the full RFC 2445 iCalandar specification and will
 most likely never do so. The goals for this project are, in order of importance:
 
@@ -18,6 +26,11 @@ most likely never do so. The goals for this project are, in order of importance:
 
 Known Issues
 ============
+The following items from iCalendar are not yet supported.
+
+- BYSECOND, BYMINUTE and BYHOUR recurring events are not supported
+- Exception rules are not supported
+
 
 Contribute
 ==========
@@ -28,6 +41,9 @@ Code
 
 Issues
 ------
+
+Alternatives
+============
 
 License
 =======
