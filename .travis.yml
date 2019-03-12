@@ -1,0 +1,22 @@
+language: python
+
+#List the versions of python to test against
+python:
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7
+
+branches:
+  only:
+    - master
+
+install:
+  - pip install -r requirements.txt --use-mirrors
+  - pip install pep8 sphinx --use-mirrors
+  - pip install coveralls
+  - pip install -e .
+
+notifications:
+  email:
+    - develop@bjornlarsson.net
