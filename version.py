@@ -21,6 +21,11 @@
 # SOFTWARE.
 
 __version__ = (0, 1, 0)
+__name__ = "ical2org-two"
+
+
+def name():
+    return __name__
 
 
 def version():

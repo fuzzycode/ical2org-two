@@ -20,11 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from setuptools import setup
-from version import version
+from setuptools import setup, find_packages
+from version import version, name
 
 setup(
-    name="ical2org-two",
+    name=name(),
     version=version(),
     url="https://github.com/fuzzycode/ical2org-two",
     project_urls={
@@ -37,15 +37,18 @@ setup(
     author_email="develop@bjornlarsson.net",
     maintainer="Björn Larsson",
     maintainer_email="develop@bjornlarsson.net",
+    zip_safe=False,
     description="",
     long_description="",
-    py_modules=['ical2org', 'version'],
+    keywords="ical iCalendar calendar org org-mode emacs",
+    platforms=["any"],
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
             'ical2org2 = ical2org:main',
         ],
     },
-    python_requires=">3.3",
+    python_requires=">=3.4",
     test_suite='tests',
     classifiers=[
         "Operating System :: OS Independent",
