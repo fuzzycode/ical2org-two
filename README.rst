@@ -21,6 +21,7 @@ most likely never do so. The goals for this project are, in order of importance:
 - Support all dates configurable through Google Calendar
 - Support all dates configurable through Office 365
 - Support custom tagging through cli configuration
+- Support extracting custom properties through cli configuration
 - Support filtering through cli configuration
 - Support full iCalendar specifications
 
