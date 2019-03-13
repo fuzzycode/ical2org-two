@@ -2,14 +2,20 @@ language: python
 
 #List the versions of python to test against
 python:
-  - 3.4
-  - 3.5
-  - 3.6
-  - 3.7
+  - "3.4"
+  - "3.5"
+  - "3.6"
+  - "3.7"
 
 branches:
   only:
     - master
+
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+  - pip install .
+
 jobs:
   include:
     - script: setup.py test
