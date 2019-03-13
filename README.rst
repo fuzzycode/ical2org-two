@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.com/fuzzycode/ical2org-two.svg?branch=master
+    :target: https://travis-ci.com/fuzzycode/ical2org-two
+
 About
 =====
 Converts ical data into Emacs org-mode entries, suitable for usage in agenda mode.
