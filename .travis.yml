@@ -2,10 +2,15 @@ language: python
 
 #List the versions of python to test against
 python:
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "3.7"
+  - 3.4
+  - 3.5
+  - 3.6
+
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
 
 branches:
   only:
