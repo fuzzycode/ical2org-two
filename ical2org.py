@@ -29,6 +29,7 @@
 import argparse
 import re
 import sys
+import signal
 from datetime import datetime, date, timedelta
 from itertools import groupby
 from operator import attrgetter
@@ -41,6 +42,10 @@ from icalendar import Calendar as iCal
 from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
+
+
+def sigint_handler(_, __):
+    sys.exit(0)
 
 
 def _localized_time(dt):
@@ -330,6 +335,7 @@ def convert(args):
 
 
 def main():
+    signal.signal(signal.SIGINT, sigint_handler)
     return convert(sys.argv)
 
 
