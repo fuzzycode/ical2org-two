@@ -11,12 +11,6 @@ branches:
   only:
     - master
 
-install:
-  - pip install -r requirements.txt --use-mirrors
-  - pip install pep8 sphinx --use-mirrors
-  - pip install coveralls
-  - pip install -e .
-
 notifications:
   email:
     - develop@bjornlarsson.net
