@@ -20,43 +20,49 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from setuptools import setup, find_packages
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    import distribute_setup
+
+    distribute_setup.use_setuptools()
+    from setuptools import setup, find_packages
+
 from version import version, name
 
-setup(
-    name=name(),
-    version=version(),
-    url="https://github.com/fuzzycode/ical2org-two",
-    project_urls={
-        "Documentation": "",
-        "Code": "https://github.com/fuzzycode/ical2org-two",
-        "Issue tracker": "https://github.com/fuzzycode/ical2org-two/issues",
-    },
-    license="MIT",
-    author="Björn Larsson",
-    author_email="develop@bjornlarsson.net",
-    maintainer="Björn Larsson",
-    maintainer_email="develop@bjornlarsson.net",
-    zip_safe=False,
-    description="",
-    long_description="",
-    keywords="ical iCalendar calendar org org-mode emacs",
-    platforms=["any"],
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'ical2org2 = ical2org:main',
-        ],
-    },
-    python_requires=">=3.4",
-    test_suite='tests',
-    classifiers=[
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-    ]
-)
+setup(name=name(),
+      version=version(),
+      url="https://github.com/fuzzycode/ical2org-two",
+      project_urls={
+          "Documentation": "",
+          "Code": "https://github.com/fuzzycode/ical2org-two",
+          "Issue tracker": "https://github.com/fuzzycode/ical2org-two/issues",
+      },
+      license="MIT",
+      author="Björn Larsson",
+      author_email="develop@bjornlarsson.net",
+      maintainer="Björn Larsson",
+      maintainer_email="develop@bjornlarsson.net",
+      zip_safe=False,
+      description="",
+      long_description="",
+      keywords="ical iCalendar calendar org org-mode emacs",
+      platforms=["any"],
+      packages=find_packages(),
+      entry_points={
+          'console_scripts': [
+              'ical2org2 = ical2org:main',
+          ],
+      },
+      python_requires=">=3.4",
+      test_suite='tests',
+      classifiers=[
+          "Operating System :: OS Independent",
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 3",
+          "Programming Language :: Python :: 3.4",
+          "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
+          "Programming Language :: Python :: 3.7",
+      ]
+      )
