@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # MIT License
 
 # Copyright (c) 2019 Björn Larsson
@@ -24,16 +26,18 @@
 
 """
 
-import sys
 import argparse
 import re
+import sys
+from datetime import datetime, date, timedelta
+from itertools import groupby
 from operator import attrgetter
 from string import Template
+
 from dateutil import tz
-from itertools import groupby
-from icalendar import Calendar as iCal
-from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+from icalendar import Calendar as iCal
+
 from version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
@@ -314,7 +318,7 @@ class Calendar(object):
         return "Calendar ({} Events)".format(len(self._events))
 
 
-def main(args):
+def convert(args):
     parser = argparse.ArgumentParser(description=__description__)
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(version()))
     parser.add_argument('--input', type=argparse.FileType(mode='r', encoding='utf8'), default=sys.stdin)
@@ -325,5 +329,9 @@ def main(args):
     settings['output'].write(str(Calendar(settings['input'])))
 
 
+def main():
+    return convert(sys.argv)
+
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())
