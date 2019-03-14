@@ -21,14 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    import distribute_setup
-
-    distribute_setup.use_setuptools()
-    from setuptools import setup, find_packages
-
+from setuptools import setup, find_packages
 from version import version, name
 
 setup(
@@ -59,6 +52,7 @@ setup(
     },
     python_requires=">=3.4",
     test_suite='tests',
+    include_package_data=True,
     classifiers=[
         "Operating System :: OS Independent",
         "Programming Language :: Python",
