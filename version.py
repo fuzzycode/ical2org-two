@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # MIT License
 
 # Copyright (c) 2019 Björn Larsson
@@ -25,6 +26,7 @@ __name__ = "ical2org-two"
 
 
 def name():
+    """Returns the name of the project"""
     return __name__
 
 
