@@ -39,7 +39,7 @@ from dateutil import tz
 from dateutil.relativedelta import relativedelta
 from icalendar import Calendar as iCal
 
-from version import version
+from ical2org.version import version
 
 __description__ = "Converts icalander .ics files to org-agenda format"
 
@@ -323,6 +323,10 @@ class Calendar(object):
         return "Calendar ({} Events)".format(len(self._events))
 
 
+def _run_convert(_in, _out):
+    _out.write(str(Calendar(_in)))
+
+
 def convert(args):
     parser = argparse.ArgumentParser(description=__description__)
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(version()))
@@ -330,8 +334,7 @@ def convert(args):
     parser.add_argument('--output', type=argparse.FileType(mode='w', encoding='utf8'), default=sys.stdout)
 
     settings = vars(parser.parse_args(args[1:]))
-
-    settings['output'].write(str(Calendar(settings['input'])))
+    _run_convert(settings['input'], settings['output'])
 
 
 def main():

@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 from setuptools import setup, find_packages
-from version import version, name
+from ical2org.version import version, name
 
 setup(
     name=name(),
@@ -45,9 +45,10 @@ setup(
     platforms=["any"],
     packages=find_packages(),
     install_requires=['icalendar', 'python-dateutil'],
+    tests_require=['libfaketime'],
     entry_points={
         'console_scripts': [
-            'ical2org2 = ical2org:main',
+            'ical2org2 = ical2org.ical2org:main',
         ],
     },
     python_requires=">=3.4",
