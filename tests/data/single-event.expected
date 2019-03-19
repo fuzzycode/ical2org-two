@@ -1,0 +1,13 @@
+# -*- buffer-read-only: t -*-
+#+PROPERTY: PRODID -//Google Inc//Google Calendar 70.9054//EN
+#+PROPERTY: VERSION 2.0
+#+PROPERTY: CREATED [2019-02-05 Tue 22:03]
+
+* Test Event One Time Limited
+%%(and (diary-block 02 12 2019 02 12 2019)) 19:00--20:00 Test Event One Time Limited
+        :PROPERTIES:
+        :ID: 2l0654150e5qsu5r28se258np4
+        :LOCATION:
+        :CREATED: [2019-02-11 Mon 18:55]
+        :LAST-MODIFIED: [2019-02-11 Mon 18:55]
+        :END:

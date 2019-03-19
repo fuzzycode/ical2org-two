@@ -188,7 +188,7 @@ def _org_exceptions(exceptions, extra):
     if extra:
         if not isinstance(extra, (list, tuple)):
             extra = tuple(extra)
-        result.extend([_org_date(getattr(e, 'RECURRENCE-ID', None).dt) for e in extra])
+        result.extend(["(not {})".format(_org_date(getattr(e, 'RECURRENCE-ID', None).dt)) for e in extra])
 
     return " ".join(result)
 
